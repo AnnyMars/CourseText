@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkScreen(functions: Functions, viewModel: HistoryViewModel) {
-    val A = remember {
+    val a = remember {
         mutableStateOf(TextFieldValue())
     }
     val b = remember {
@@ -79,8 +79,8 @@ fun WorkScreen(functions: Functions, viewModel: HistoryViewModel) {
 
     ) {
         TextField(
-            value = A.value,
-            onValueChange = { A.value = it },
+            value = a.value,
+            onValueChange = { a.value = it },
             label = { Text("Матрица коэффициентов A") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
         )
@@ -117,37 +117,39 @@ fun WorkScreen(functions: Functions, viewModel: HistoryViewModel) {
 
         Button(
             onClick = {
-                val matrixA = functions.parseMatrix(A.value.text)
+                val matrixA = functions.parseMatrix(a.value.text)
                 val vectorB = functions.parseVector(b.value.text)
-
-                if (matrixA != null && vectorB != null) {
-                    if (matrixA.size == vectorB.size) {
-                        val iterations = maxIterations.value.text.toIntOrNull()
-                        val tol = tolerance.value.text.toDoubleOrNull()
-
-                        if (iterations != null && tol != null) {
-                            val result = functions.solveLinearEquations(matrixA, vectorB, iterations, tol)
-
-                            solution.value = if (result != null) {
-                                viewModel.insertItem(Item(0, result.contentToString()))
-                                "Решение: ${result.contentToString()}"
+                try {
+                    if (matrixA != null && vectorB != null) {
+                        if (matrixA.size == vectorB.size) {
+                            val iterations = maxIterations.value.text.toIntOrNull()
+                            val tol = tolerance.value.text.toDoubleOrNull()
+                            if (iterations != null && tol != null) {
+                                val result = functions.solveLinearEquations(matrixA, vectorB, iterations, tol)
+                                solution.value = if (result != null) {
+                                    viewModel.insertItem(Item(0, result.contentToString()))
+                                    "Решение: ${result.contentToString()}"
+                                } else {
+                                    "Не удалось найти решение"
+                                }
                             } else {
-                                "Не удалось найти решение"
+                                solution.value = "Ошибка: Пожалуйста, введите корректные значения для максимального количества итераций и допустимой погрешности"
                             }
                         } else {
-                            solution.value = "Ошибка: Пожалуйста, введите корректные значения для максимального количества итераций и допустимой погрешности"
+                            solution.value = "Ошибка: Размерности матрицы коэффициентов A и вектора свободных членов b должны соответствовать"
                         }
-                    } else {
-                        solution.value = "Ошибка: Размерности матрицы коэффициентов A и вектора свободных членов b должны соответствовать"
+                    }else {
+                        solution.value = "Ошибка: Пожалуйста, введите корректные значения для матрицы коэффициентов A и вектора свободных членов b"
                     }
-                } else {
-                    solution.value = "Ошибка: Пожалуйста, введите корректные значения для матрицы коэффициентов A и вектора свободных членов b"
+                }catch (e: ArrayIndexOutOfBoundsException){
+                    solution.value = "Ошибка ${e}. Необходимо ввести матрицу верной размерности"
                 }
+
             }
         ) {
             Text("Решить")
         }
-        
+
         Button(onClick = { openBottomSheet = !openBottomSheet }) {
             Text(text = "Посмотреть историю")
         }

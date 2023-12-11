@@ -29,7 +29,7 @@ class Functions {
         }
     }
 
-    fun calculateError(x: DoubleArray, xPrev: DoubleArray): Double {
+    private fun calculateError(x: DoubleArray, xPrev: DoubleArray): Double {
         var error = 0.0
         for (i in x.indices) {
             error += abs(x[i] - xPrev[i])
@@ -37,8 +37,8 @@ class Functions {
         return error
     }
 
-    fun solveLinearEquations(A: Array<DoubleArray>, b: DoubleArray, maxIterations: Int, tolerance: Double): DoubleArray? {
-        val n = A.size
+    fun solveLinearEquations(a: Array<DoubleArray>, b: DoubleArray, maxIterations: Int, tolerance: Double): DoubleArray? {
+        val n = a.size
         val x = DoubleArray(n)
         var iteration = 0
         var error = Double.MAX_VALUE
@@ -50,10 +50,10 @@ class Functions {
                 var sum = 0.0
                 for (j in 0 until n) {
                     if (j != i) {
-                        sum += A[i][j] * xPrev[j]
+                        sum += a[i][j] * xPrev[j]
                     }
                 }
-                x[i] = (b[i] - sum) / A[i][i]
+                x[i] = (b[i] - sum) / a[i][i]
             }
 
             error = calculateError(x, xPrev)
